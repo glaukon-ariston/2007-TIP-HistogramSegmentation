@@ -1,4 +1,18 @@
 # 2007_TIP_HistogramSegmentation
+
+## Update 2020-09-26: Python code
+
+The minimal example in Python is as follows. For a slightly more complete example see [code/python/playground.py](code/python/playground.py).
+```
+import imageio
+from PIL import Image
+import numpy as np
+img = np.array(Image.open('images/lena.png').convert('L'))
+histogram  = np.bincount(img.ravel(), minlength=256)
+indices = histogramSegmentation.fine_to_coarse_histogram_segmentation(histogram, e=0)
+```
+
+
 The following Matlab functions implement the Fine to Coarse Histogram Segmentation described in our paper
 
 J.Delon, A.Desolneux, J-L.Lisani and A-B.Petro,  
