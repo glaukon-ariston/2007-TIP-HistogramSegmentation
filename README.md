@@ -7,6 +7,7 @@ The minimal example in Python is as follows. For a slightly more complete exampl
 import imageio
 from PIL import Image
 import numpy as np
+import histogramSegmentation
 img = np.array(Image.open('images/lena.png').convert('L'))
 histogram  = np.bincount(img.ravel(), minlength=256)
 indices = histogramSegmentation.fine_to_coarse_histogram_segmentation(histogram, e=0)
