@@ -45,60 +45,8 @@
 #   > idx=FTC_Seg(H,0);
 #
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy import signal
 import math
-
-iterationNo = 0
-def plot_histogram_modes(histogram, indices):
-    global iterationNo
-    valMax = np.amax(histogram)
-    plt.plot(histogram)
-    H = histogram
-    N = histogram.size
-    for i in range(indices.size):
-        plt.axvline(x=indices[i], color='cyan', linestyle='dashed', alpha=0.5)
-        plt.text(x=indices[i], y=valMax/2, s=str(i), alpha=0.7, color='#334f8d', rotation=90, va='center')
-    plt.title("Histogram")
-    plt.xlabel("Pixel Value")
-    plt.ylabel("Pixel Count")
-    plt.savefig('debug/%03d_histogram_modes_%d.png' % (iterationNo, indices.size))
-    plt.close()
-    iterationNo = iterationNo + 1
-
-
-def plot_two_histograms(h1, h2):
-    print(repr(h1))
-    plt.clf()
-    plt.style.use('seaborn-deep')
-    bins = np.linspace(0, max(h1.size, h2.size), max(h1.size, h2.size))
-    plt.hist(h1, bins, label='Interval', alpha=0.5)
-    plt.hist(h2, bins, label='Isotonic Regression', alpha=0.5)
-    plt.ylabel('Pixel count')
-    plt.xlabel('Index')
-    plt.title('Histogram Interval and its Isotonic Regression')
-    plt.legend(loc='upper right')
-    plt.show()
-
-
-def plot_two_histograms1(h1, h2):
-    print(repr(h1))
-    plt.clf()
-    plt.style.use('seaborn-deep')
-    fig, ax = plt.subplot()
-
-    x = np.arange(max(h1.size, h2.size))  # the label locations
-    width = 0.1  # the width of the bars
-
-    ax.bar(x - width/2, h1, width, label='Interval', alpha=0.5)
-    ax.bar(x + width/2, h2, width, label='Isotonic Regression', alpha=0.5)
-
-    ax.set_ylabel('Pixel count')
-    ax.set_xlabel('Index')
-    ax.set_title('Histogram Interval and its Isotonic Regression')
-    ax.legend()
-    fig.tight_layout()
-    plt.show()
 
 
 def pool_adjacent_violators(interval, nonDecreasing):
@@ -157,7 +105,6 @@ def max_entropy(h, a, b, e, nonDecreasing):
     g = h[a:b+1]
     L = g.size
     decreas = pool_adjacent_violators(g, nonDecreasing)
-    #plot_two_histograms(g, decreas)
 
     # integrate signals
     g = np.cumsum(g)
@@ -199,7 +146,7 @@ def fine_to_coarse_histogram_segmentation(H, e):
     large e => coarse segmentation
     small e => fine segmentation
     '''
-    logId = open('val_python.m', 'w')
+    #logId = open('val_python.m', 'w')
     N = H.size
 
     # find the list of local minima and maxima of H
@@ -228,27 +175,26 @@ def fine_to_coarse_histogram_segmentation(H, e):
     # [idxs(kmin), idxs(kmin+3)] is the first interval to merge
     kmin = np.argmin(maxEntropies)
     valmin = maxEntropies[kmin]
-    print('val[%d] = [%s]' % (len(maxEntropies), ' '.join(['%f' % (v,) for v in maxEntropies])), file=logId)
+    #print('val[%d] = [%s]' % (len(maxEntropies), ' '.join(['%f' % (v,) for v in maxEntropies])), file=logId)
 
     while maxEntropies.size > 0 and valmin < 0:
-        #plot_histogram_modes(H, idxs)
         # update the list of min, max
         idxs = np.concatenate([idxs[0:kmin+1], idxs[kmin+3:]])
-        maxEntropies = np.concatenate([maxEntropies[0:kmin+1], maxEntropies[kmin+3:]])      # No need to worry about upper bound out of range in Python.
+        maxEntropies = np.concatenate([maxEntropies[0:kmin+1], maxEntropies[kmin+3:]])      # No need to worry about the upper bound out of range in Python.
         maxEntropies = maxEntropies[0:idxs.size-3]
-        print('val[%d] = [%s]' % (len(maxEntropies), ' '.join(['%f' % (v,) for v in maxEntropies])), file=logId)
+        #print('val[%d] = [%s]' % (len(maxEntropies), ' '.join(['%f' % (v,) for v in maxEntropies])), file=logId)
         # update max_entropy around the removed optima
         for j in range(max(kmin-2,0), min(kmin+1,maxEntropies.size)):
             # decide if increasing or decreasing
             nonDecreasing = 1 if (not begins_with_min and j % 2 == 1) or (begins_with_min and j % 2 == 0) else 0
             # update the max entropy on the interval [k,k+3]
             maxEntropies[j] = max_entropy(H, idxs[j], idxs[j+3], e, nonDecreasing)
-            print('j %d inc %d val(j) %f' % (j, nonDecreasing, maxEntropies[j]), file=logId)
+            #print('j %d inc %d val(j) %f' % (j, nonDecreasing, maxEntropies[j]), file=logId)
         if maxEntropies.size > 0:
             kmin = np.argmin(maxEntropies)
             valmin = maxEntropies[kmin]
 
     idxs = idxs[0::2] if begins_with_min else idxs[1::2]
-    print('idx[%d] = [%s]' % (len(idxs), ' '.join(['%d' % (v,) for v in idxs])), file=logId)
-    logId.close()
+    #print('idx[%d] = [%s]' % (len(idxs), ' '.join(['%d' % (v,) for v in idxs])), file=logId)
+    #logId.close()
     return idxs

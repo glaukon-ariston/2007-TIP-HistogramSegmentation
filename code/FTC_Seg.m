@@ -26,9 +26,7 @@ function idx = FTC_Seg(H,e)
 % small e => fine segmentation
 
 
-
-
-
+logId = fopen('val_matlab.m', 'w');
 lH = length(H);
 
 %% find the list of local minima and maxima of H
@@ -40,6 +38,8 @@ idx = sort([idx_min,idx_max]);
 if (idx(1)~=1) idx = [1,idx]; end
 if (idx(end)~=lH) idx = [idx,lH]; end
 
+% from python/histogramSegmentation.py (findpeaks in Python get different results than in MatLab)
+idx = [1 48 49 50 67 68 69 71 72 73 74 76 77 79 81 82 83 84 85 92 93 100 102 103 110 112 113 114 116 119 120 127 128 130 136 137 138 145 147 148 150 155 169 170 171 173 176 178 186 188 189 196 197 199 200 202 203 206 207 209 211 212 221 222 234 235 237 239 241 243 244 245 256];
 
 % find if idx starts with a minimum or a maximum
  if H(idx(1)) < H(idx(2))
@@ -63,7 +63,7 @@ for k =1:K-3
    % decide if we want to test the increasing or decreasing hypothesis on
    % [idx(k),idx(k+3)]
    
-   if ((begins_with_min && mod(k,2)==1)|(~begins_with_min && mod(k,2)==0))
+   if ((begins_with_min && mod(k,2)==1) || (~begins_with_min && mod(k,2)==0))
        inc = 1; 
    else inc = 0; 
    end
@@ -73,31 +73,27 @@ for k =1:K-3
       
 end
 
-   
-
-
 %%%%%%%% MERGING of MODES
 
 [valmin, kmin] = min(val); %[idx(kmin), idx(kmin+3)] is the first interval to merge
+fprintf(logId, "val[%d] = [%s]\n", length(val), sprintf("%f ", val))
 
 while(~isempty(val) && valmin<0)
-    
     % update the list of min, max
     idx = [idx(1:kmin),idx(kmin+3:end)];       
     val = [val(1:min(kmin,end)),val(kmin+3:end)];
     val = val(1:length(idx)-3);
-    
+    fprintf(logId, "val[%d] = [%s]\n", length(val), sprintf("%f ", val))
     % update max_entropy around the removed optima 
     for j=max(kmin-2,1):min(kmin,length(val))
-        
         % decide if increasing or decreasing
-        if (begins_with_min && mod(j,2)==1)|(~begins_with_min && mod(j,2)==0)
+        if (begins_with_min && mod(j,2)==1) || (~begins_with_min && mod(j,2)==0)
             inc = 1; 
         else inc = 0; 
         end
-           
         % update the max entropy on the interval [k,k+3]
         val(j) = max_entropy(H,idx(j),idx(j+3),e,inc);
+        fprintf(logId, 'j %d inc %d val(j) %f\n', j, inc, val(j))
     end
     
    [valmin, kmin] = min(val);
@@ -110,10 +106,11 @@ if (begins_with_min)
 else
     idx = idx(2:2:end);     
 end
-
+fprintf(logId, "idx[%d] = [%s]\n", length(idx), sprintf("%d ", idx))
+fclose(logId);
 
 %% Display the segmentation
-bar(H,'r');
+bar(H,':r');
 hold on;
 for k = 1:length(idx)
     line([idx(k) idx(k)], [0 max(H(:))]);
