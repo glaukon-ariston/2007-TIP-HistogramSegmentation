@@ -3,7 +3,7 @@
 ## Update 2020-09-26: Python code
 
 The minimal example in Python is as follows. For a slightly more complete example see [code/python/playground.py](code/python/playground.py).
-```
+```python
 import imageio
 from PIL import Image
 import numpy as np
