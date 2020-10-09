@@ -38,8 +38,8 @@ idx = sort([idx_min,idx_max]);
 if (idx(1)~=1) idx = [1,idx]; end
 if (idx(end)~=lH) idx = [idx,lH]; end
 
-% from python/histogramSegmentation.py (findpeaks in Python get different results than in MatLab)
-idx = [1 48 49 50 67 68 69 71 72 73 74 76 77 79 81 82 83 84 85 92 93 100 102 103 110 112 113 114 116 119 120 127 128 130 136 137 138 145 147 148 150 155 169 170 171 173 176 178 186 188 189 196 197 199 200 202 203 206 207 209 211 212 221 222 234 235 237 239 241 243 244 245 256];
+%% from python/histogramSegmentation.py (findpeaks in Python get different results than in MatLab)
+% idx = [1 48 49 50 67 68 69 71 72 73 74 76 77 79 81 82 83 84 85 92 93 100 102 103 110 112 113 114 116 119 120 127 128 130 136 137 138 145 147 148 150 155 169 170 171 173 176 178 186 188 189 196 197 199 200 202 203 206 207 209 211 212 221 222 234 235 237 239 241 243 244 245 256];
 
 % find if idx starts with a minimum or a maximum
  if H(idx(1)) < H(idx(2))
@@ -95,10 +95,7 @@ while(~isempty(val) && valmin<0)
         val(j) = max_entropy(H,idx(j),idx(j+3),e,inc);
         fprintf(logId, 'j %d inc %d val(j) %f\n', j, inc, val(j))
     end
-    
    [valmin, kmin] = min(val);
-   
-         
 end
 
 if (begins_with_min) 
